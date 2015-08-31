@@ -3,7 +3,7 @@
 <title>Static Call Graph - [.\obj\project.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image .\obj\project.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5040049: Last Updated: Mon Aug 31 00:54:28 2015
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5040049: Last Updated: Mon Aug 31 20:17:19 2015
 <BR><P>
 <H3>Maximum Stack Usage =         96 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -189,7 +189,7 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> entry9a.o(.ARM.Collect$$$$0000000B)
 </UL>
-<P><STRONG><a name="[26]"></a>TIM2_IRQHandler</STRONG> (Thumb, 48 bytes, Stack size 8 bytes, main.o(.text))
+<P><STRONG><a name="[26]"></a>TIM2_IRQHandler</STRONG> (Thumb, 54 bytes, Stack size 8 bytes, main.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 32<LI>Call Chain = TIM2_IRQHandler &rArr; TIM_GetITStatus
 </UL>
 <BR>[Calls]<UL><LI><a href="#[59]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TIM_GetITStatus
@@ -626,7 +626,7 @@ Global Symbols
 <LI><a href="#[8c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;EXTI_ClearITPendingBit
 </UL>
 
-<P><STRONG><a name="[50]"></a>Init_Led7Seg</STRONG> (Thumb, 40 bytes, Stack size 8 bytes, led_7segs.o(.text))
+<P><STRONG><a name="[50]"></a>Init_Led7Seg</STRONG> (Thumb, 38 bytes, Stack size 8 bytes, led_7segs.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 48<LI>Call Chain = Init_Led7Seg &rArr; GPIO_Init
 </UL>
 <BR>[Calls]<UL><LI><a href="#[86]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RCC_APB2PeriphClockCmd
@@ -636,7 +636,7 @@ Global Symbols
 <LI><a href="#[35]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[51]"></a>Led7Seg_PrintNum</STRONG> (Thumb, 92 bytes, Stack size 16 bytes, led_7segs.o(.text))
+<P><STRONG><a name="[51]"></a>Led7Seg_PrintNum</STRONG> (Thumb, 88 bytes, Stack size 16 bytes, led_7segs.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 56<LI>Call Chain = Led7Seg_PrintNum &rArr; castLedValue &rArr; GPIO_SetBits
 </UL>
 <BR>[Calls]<UL><LI><a href="#[91]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GPIO_SetBits
@@ -2243,7 +2243,7 @@ Local Symbols
 <LI><a href="#[51]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Led7Seg_PrintNum
 </UL>
 
-<P><STRONG><a name="[90]"></a>castLedValue</STRONG> (Thumb, 154 bytes, Stack size 24 bytes, led_7segs.o(.text))
+<P><STRONG><a name="[90]"></a>castLedValue</STRONG> (Thumb, 148 bytes, Stack size 24 bytes, led_7segs.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 40<LI>Call Chain = castLedValue &rArr; GPIO_SetBits
 </UL>
 <BR>[Calls]<UL><LI><a href="#[91]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GPIO_SetBits

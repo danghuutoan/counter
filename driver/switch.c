@@ -126,7 +126,7 @@ static const switch_config_t switch_list [] =
 	/* SWITCH_RESET */
 	CREATE_SWITCH(B,6,EXTI9_5_IRQn),		
 	/* SWITCH_MODE*/
-	CREATE_SWITCH(D,5,EXTI5_IRQn),
+	CREATE_SWITCH(D,5,EXTI9_5_IRQn),
 		/* SWITCH_UP*/
 	CREATE_SWITCH(D,4,EXTI4_IRQn),
 };

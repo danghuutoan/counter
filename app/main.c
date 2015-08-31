@@ -18,6 +18,7 @@
 #define  PORTA_IN						&sw_process_data[1]
 #define  PORTE_IN						&sw_process_data[2]
 #define  PORTC_IN           &sw_process_data[3]
+#define  PORTD_IN           &sw_process_data[4]
 #define FLASH_PAGE_SIZE    ((uint16_t)0x400)
 #define MAX_DEVICE					30
 #define StartAddr  						0x08010400
@@ -133,12 +134,10 @@ hal_dio_t led_switch_RESET;
 hal_dio_t led_switch_MODE;
 hal_dio_t led_switch_UP;
 hal_dio_t buzzer;
-static uint16_t sw_process_data[4];
+static uint16_t sw_process_data[5];
 uint8_t l_sw_count_u8 = 0;
 uint32_t bk_data;
 uint32_t l_time_now, l_task_flash_tick;
-
-
 
 
 
@@ -541,6 +540,8 @@ void TIM2_IRQHandler (void)
 		sw_process_data[1] = GPIOA->IDR;
 		sw_process_data[2] = GPIOE->IDR;
 		sw_process_data[3] = GPIOC->IDR;
+		sw_process_data[4] = GPIOC->IDR;
+		
 		TIM_ClearFlag(TIM2, TIM_IT_Update);
 	}
 }
