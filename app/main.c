@@ -17,8 +17,8 @@
 #define  PORTB_IN						&sw_process_data[0]
 #define  PORTA_IN						&sw_process_data[1]
 #define  PORTE_IN						&sw_process_data[2]
-#define  PORTC_IN           &sw_process_data[3]
-#define  PORTD_IN           &sw_process_data[4]
+#define  PORTC_IN           					&sw_process_data[3]
+#define  PORTD_IN           					&sw_process_data[4]
 #define FLASH_PAGE_SIZE    ((uint16_t)0x400)
 #define MAX_DEVICE					30
 #define StartAddr  						0x08010400
@@ -58,11 +58,13 @@ typedef enum {MODE_NORMAL,MODE_CONFIG} sys_mode_t;
 {
 	sys_mode_t mode;
 	uint8_t dev_num;
+	uint32_t sw_status;
 } dev_manager_t;
 
-dev_manager_t manager = {
+volatile dev_manager_t manager = {
 	.mode = MODE_NORMAL,
 	.dev_num = 30,
+	.sw_status = 0
 };
 
 switch_t l_switch_1;
@@ -400,6 +402,8 @@ int main (void)
 	/* get backup data from backup register*/
 	l_sw_count_u8 =(*(__IO uint16_t*) StartAddr);
 	manager.dev_num = (*(__IO uint16_t*) (StartAddr +2));
+	manager.sw_status = (*(__IO uint32_t*) (StartAddr +4));
+	
 	if(manager.dev_num >=  MAX_DEVICE)
 	{
 		manager.dev_num = MAX_DEVICE;
@@ -417,7 +421,17 @@ int main (void)
 	{
 		Led7Seg_PrintNum(manager.dev_num);
 	}
-		
+	uint8_t l_sw_index_u8 = 0;
+		for(l_sw_index_u8 = 0; l_sw_index_u8 < SWITCH_RESET; l_sw_index_u8++)
+		{
+			if((manager.sw_status &(~(1<<l_sw_index_u8)))!=0)
+			{
+				/* these led gonna be reset to pressed false status when reset button is pressesed */
+				hal_dio_set_high(data_table[l_sw_index_u8].led);
+				data_table[l_sw_index_u8].l_switch->pressed = true;
+			}
+		}
+				
 	/* init timer , start to count */
 	__enable_irq();
 	timer_init();
@@ -426,18 +440,23 @@ int main (void)
 		/* update switch status*/
 		sw_update_status();	
 			
-		/* store data into flash every second */
+		/* store data from cache into flash every second */
 		if(PL_DelayElapsed(l_task_flash_tick,1000))
 		{
-			/* only write when backup data is different from update data*/
+			/* only write when backup data is different from update data
+			 * beacause sw_status changed equivalent to count data is changed
+			 * so we don't have to check sw_status is change or not 
+			 */
 			uint16_t l_data_check =(*(__IO uint16_t*) 0x08010400);
 			uint16_t l_num_check  =(*(__IO uint16_t*) 0x08010402);
 		        while((l_data_check!=l_sw_count_u8 )||(l_num_check != manager.dev_num))
 			{
-				uint16_t temp_buffer[2];
+				uint16_t temp_buffer[4];
 				temp_buffer[0] = l_sw_count_u8;
 				temp_buffer[1] = manager.dev_num;
-				FlashWrite(StartAddr,temp_buffer,2);
+				uint32_t* temp = (uint32_t *)(temp_buffer+2);
+				*temp = manager.sw_status;
+				FlashWrite(StartAddr,temp_buffer,4);
 				l_data_check =(*(__IO uint16_t*) 0x08010400);
 				l_num_check  =(*(__IO uint16_t*) 0x08010402);
 			}
@@ -465,6 +484,8 @@ int main (void)
 					{
 						/* these led gonna be reset to pressed false status when reset button is pressesed */
 						hal_dio_set_high(data_table[l_sw_index_u8].led);
+						/* store data into cache */
+						manager.sw_status |= (1<<l_sw_index_u8);
 						Led7Seg_PrintNum(l_sw_count_u8);
 					}
 				}
@@ -486,6 +507,7 @@ int main (void)
 							if(data_table[l_switch_reset].l_switch->pressed == true)
 							{
 								hal_dio_set_low(data_table[l_switch_reset].led);
+								manager.sw_status = 0;
 								data_table[l_switch_reset].l_switch->pressed = false;
 							}
 							else 
@@ -505,6 +527,7 @@ int main (void)
 							if(manager.mode == MODE_CONFIG)
 							{
 								manager.mode = MODE_NORMAL;
+								/* blinking led to notify */
 								Led7Seg_PrintNum(88);
 								Delay_ms(500);
 								Led7Seg_PrintNum(100);
@@ -518,6 +541,7 @@ int main (void)
 							else
 							{
 								manager.mode = MODE_CONFIG;
+								/* blinking led to notify */
 								Led7Seg_PrintNum(88);
 								Delay_ms(500);
 								Led7Seg_PrintNum(100);
@@ -526,6 +550,7 @@ int main (void)
 								Delay_ms(500);
 								Led7Seg_PrintNum(100);
 								Delay_ms(500);
+								
 								Led7Seg_PrintNum(manager.dev_num);
 							}
 						}
