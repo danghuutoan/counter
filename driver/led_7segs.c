@@ -1,7 +1,7 @@
 #include "led_7segs.h"
 #include "stm32f10x_gpio.h"
 #include "stm32f10x_rcc.h"
-#define TOAN
+//#define TOAN
 #ifdef TOAN
 
 #define LED7SEG_CLOCK_PIN			GPIO_Pin_1		// pin 11 of 595

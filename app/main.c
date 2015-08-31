@@ -207,9 +207,9 @@ static const sw_database_t data_table [] =
 		/* switch_30 */
 	SW_DATABASE(switch_RESET ,PORTB_IN,GPIO_Pin_6),
 		/* switch_MODE */
-	SW_DATABASE(switch_MODE ,PORTB_IN,GPIO_Pin_5),
+	SW_DATABASE(switch_MODE ,PORTD_IN,GPIO_Pin_5),
 		/* switch_UP */
-	SW_DATABASE(switch_UP ,PORTB_IN,GPIO_Pin_2),
+	SW_DATABASE(switch_UP ,PORTD_IN,GPIO_Pin_4),
 };
 
 void FlashWrite(uint32_t address , uint16_t* data, uint8_t len);
