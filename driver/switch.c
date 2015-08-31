@@ -129,6 +129,8 @@ static const switch_config_t switch_list [] =
 	CREATE_SWITCH(D,5,EXTI9_5_IRQn),
 		/* SWITCH_UP*/
 	CREATE_SWITCH(D,4,EXTI4_IRQn),
+		/* SWITCH_DOWN*/
+	CREATE_SWITCH(D,6,EXTI9_5_IRQn),
 };
 static void (* callback_list[5]) (void);
 void timer_init(void)

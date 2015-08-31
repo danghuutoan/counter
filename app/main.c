@@ -98,6 +98,7 @@ switch_t l_switch_30;
 switch_t l_switch_RESET;
 switch_t l_switch_MODE;
 switch_t l_switch_UP;
+switch_t l_switch_DOWN;
 
 hal_dio_t led_switch_1;
 hal_dio_t led_switch_2;
@@ -133,6 +134,7 @@ hal_dio_t led_switch_30;
 hal_dio_t led_switch_RESET;
 hal_dio_t led_switch_MODE;
 hal_dio_t led_switch_UP;
+hal_dio_t led_switch_DOWN;
 hal_dio_t buzzer;
 static uint16_t sw_process_data[5];
 uint8_t l_sw_count_u8 = 0;
@@ -209,6 +211,8 @@ static const sw_database_t data_table [] =
 	SW_DATABASE(switch_MODE ,PORTD_IN,GPIO_Pin_5),
 		/* switch_UP */
 	SW_DATABASE(switch_UP ,PORTD_IN,GPIO_Pin_4),
+		/* switch_DOWN */
+	SW_DATABASE(switch_DOWN ,PORTD_IN,GPIO_Pin_6),
 };
 
 void FlashWrite(uint32_t address , uint16_t* data, uint8_t len);
@@ -262,7 +266,9 @@ void sw_update_status (void)
 			{				
 				if(l_sw_idx_u8 < SWITCH_RESET)
 				{
-					if(manager.mode == MODE_NORMAL)
+					if(l_sw_idx_u8 < manager.dev_num)
+					{
+						if(manager.mode == MODE_NORMAL)
 						{
 							data_table[l_sw_idx_u8].l_switch->pressed = true;
 							l_sw_count_u8++;
@@ -275,7 +281,7 @@ void sw_update_status (void)
 						{
 							/* do nothing*/
 						}
-						
+					}	
 				}
 				else
 				{
@@ -289,6 +295,9 @@ void sw_update_status (void)
 								data_table[l_sw_idx_u8].l_switch->pressed = true;
 							break;
 							case SWITCH_UP:
+								data_table[l_sw_idx_u8].l_switch->pressed = true;
+							break;
+							case SWITCH_DOWN:
 								data_table[l_sw_idx_u8].l_switch->pressed = true;
 							break;
 						}
@@ -380,6 +389,7 @@ int main (void)
 	__SW_INIT(_RESET);
 	__SW_INIT(_MODE);
 	__SW_INIT(_UP);
+	__SW_INIT(_DOWN);
 	led_init(&buzzer,HAL_DIO_CH32);
 	bkp_init();
 		
@@ -471,7 +481,7 @@ int main (void)
 						l_sw_count_u8 = 0;
 						Led7Seg_PrintNum(l_sw_count_u8);
 						uint8_t l_switch_reset;
-						for(l_switch_reset = 0;l_switch_reset< SWITCH_RESET;l_switch_reset++)
+						for(l_switch_reset = 0;((l_switch_reset< SWITCH_RESET)&&(l_switch_reset < manager.dev_num));l_switch_reset++)
 						{
 							if(data_table[l_switch_reset].l_switch->pressed == true)
 							{
@@ -496,14 +506,26 @@ int main (void)
 							{
 								manager.mode = MODE_NORMAL;
 								Led7Seg_PrintNum(88);
-								Delay_ms(2000);
+								Delay_ms(500);
+								Led7Seg_PrintNum(100);
+								Delay_ms(500);
+								Led7Seg_PrintNum(88);
+								Delay_ms(500);
+								Led7Seg_PrintNum(100);
+								Delay_ms(500);
 								Led7Seg_PrintNum(l_sw_count_u8);
 							}
 							else
 							{
 								manager.mode = MODE_CONFIG;
 								Led7Seg_PrintNum(88);
-								Delay_ms(2000);
+								Delay_ms(500);
+								Led7Seg_PrintNum(100);
+								Delay_ms(500);
+								Led7Seg_PrintNum(88);
+								Delay_ms(500);
+								Led7Seg_PrintNum(100);
+								Delay_ms(500);
 								Led7Seg_PrintNum(manager.dev_num);
 							}
 						}
@@ -515,6 +537,22 @@ int main (void)
 							if(manager.mode == MODE_CONFIG)
 							{
 								manager.dev_num ++;
+								
+								if(manager.dev_num > MAX_DEVICE)
+									manager.dev_num = 0;
+									
+								Led7Seg_PrintNum(manager.dev_num);
+							}
+								
+						}
+							break;
+					case SWITCH_DOWN:
+						if(data_table[l_sw_index_u8].l_switch->pressed == true)
+						{
+							data_table[l_sw_index_u8].l_switch->pressed = false;
+							if(manager.mode == MODE_CONFIG)
+							{
+								manager.dev_num --;
 								
 								if(manager.dev_num > MAX_DEVICE)
 									manager.dev_num = 0;
@@ -540,7 +578,7 @@ void TIM2_IRQHandler (void)
 		sw_process_data[1] = GPIOA->IDR;
 		sw_process_data[2] = GPIOE->IDR;
 		sw_process_data[3] = GPIOC->IDR;
-		sw_process_data[4] = GPIOC->IDR;
+		sw_process_data[4] = GPIOD->IDR;
 		
 		TIM_ClearFlag(TIM2, TIM_IT_Update);
 	}

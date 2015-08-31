@@ -38,6 +38,7 @@ typedef enum _switch_name
 	SWITCH_RESET,
 	SWITCH_MODE,
 	SWITCH_UP,
+	SWITCH_DOWN,
 	SWITCH_MAX,
 } switch_name_t;
 

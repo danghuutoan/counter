@@ -97,6 +97,9 @@ int Led7Seg_PrintNum(uint8_t value)
 	uint8_t val1, val2;
 	if( value > 99)
 	{
+		castLedValue(val1, true);
+		castLedValue(val1, true);
+		LED7SEG_LATCH;
 		return -1;
 	}
 	else
