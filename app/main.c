@@ -540,7 +540,7 @@ void TIM2_IRQHandler (void)
 		sw_process_data[1] = GPIOA->IDR;
 		sw_process_data[2] = GPIOE->IDR;
 		sw_process_data[3] = GPIOC->IDR;
-		sw_process_data[4] = GPIOC->IDR;
+		sw_process_data[4] = GPIOD->IDR;
 		
 		TIM_ClearFlag(TIM2, TIM_IT_Update);
 	}
