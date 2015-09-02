@@ -424,7 +424,7 @@ int main (void)
 	uint8_t l_sw_index_u8 = 0;
 		for(l_sw_index_u8 = 0; l_sw_index_u8 < SWITCH_RESET; l_sw_index_u8++)
 		{
-			if((manager.sw_status &(~(1<<l_sw_index_u8)))!=0)
+			if((manager.sw_status &(1<<l_sw_index_u8))!=0)
 			{
 				/* these led gonna be reset to pressed false status when reset button is pressesed */
 				hal_dio_set_high(data_table[l_sw_index_u8].led);
