@@ -313,9 +313,6 @@ void sw_update_status (void)
 		data_table[l_sw_idx_u8].l_switch->last_data = data_table[l_sw_idx_u8].l_switch->new_data;
 		__enable_irq();
 	}
-	
-	/* Write RTC flag in backup register */
-	 BKP_WriteBackupRegister(BKP_DR1,(uint32_t) l_sw_count_u8);
 }
 void bkp_init (void)
 {
@@ -399,10 +396,11 @@ int main (void)
 	Init_Led7Seg();
 		
 	__disable_irq();
-	/* get backup data from backup register*/
-	l_sw_count_u8 =(*(__IO uint16_t*) StartAddr);
-	manager.dev_num = (*(__IO uint16_t*) (StartAddr +2));
-	manager.sw_status = (*(__IO uint32_t*) (StartAddr +4));
+
+	
+	l_sw_count_u8   =  BKP_ReadBackupRegister(BKP_DR1);
+	manager.dev_num =  BKP_ReadBackupRegister(BKP_DR2);
+	manager.sw_status =  (BKP_ReadBackupRegister(BKP_DR3)<<16) + BKP_ReadBackupRegister(BKP_DR4);
 	
 	if(manager.dev_num >=  MAX_DEVICE)
 	{
@@ -447,25 +445,19 @@ int main (void)
 			 * beacause sw_status changed equivalent to count data is changed
 			 * so we don't have to check sw_status is change or not 
 			 */
-			uint16_t l_data_check =(*(__IO uint16_t*) 0x08010400);
-			uint16_t l_num_check  =(*(__IO uint16_t*) 0x08010402);
-		        while((l_data_check!=l_sw_count_u8 )||(l_num_check != manager.dev_num))
-			{
-				uint16_t temp_buffer[4];
-				temp_buffer[0] = l_sw_count_u8;
-				temp_buffer[1] = manager.dev_num;
-				uint32_t* temp = (uint32_t *)(temp_buffer+2);
-				*temp = manager.sw_status;
-				FlashWrite(StartAddr,temp_buffer,4);
-				l_data_check =(*(__IO uint16_t*) 0x08010400);
-				l_num_check  =(*(__IO uint16_t*) 0x08010402);
-			}
+
+			  BKP_WriteBackupRegister(BKP_DR1,(uint16_t) l_sw_count_u8);
+			  BKP_WriteBackupRegister(BKP_DR2,(uint16_t) manager.dev_num);
+			  BKP_WriteBackupRegister(BKP_DR3,(uint16_t) manager.sw_status>>16);
+			  BKP_WriteBackupRegister(BKP_DR4,(uint16_t) manager.sw_status);
 				l_task_flash_tick = timer_getick();
 		}
+		
+		/* change buzzer freq here*/
 		/*if count >= 30 turn on th buzzer*/
 		if(l_sw_count_u8 >= manager.dev_num)
 		{
-			if(PL_DelayElapsed(l_time_now,10000))
+			if(PL_DelayElapsed(l_time_now,10000))// change buzzer time 
 			{
 				hal_dio_toggle(&buzzer);
 				l_time_now = timer_getick();
