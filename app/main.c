@@ -448,7 +448,7 @@ int main (void)
 
 			  BKP_WriteBackupRegister(BKP_DR1,(uint16_t) l_sw_count_u8);
 			  BKP_WriteBackupRegister(BKP_DR2,(uint16_t) manager.dev_num);
-			  BKP_WriteBackupRegister(BKP_DR3,(uint16_t) manager.sw_status>>16);
+			  BKP_WriteBackupRegister(BKP_DR3,(uint16_t) ( manager.sw_status>>16 ));
 			  BKP_WriteBackupRegister(BKP_DR4,(uint16_t) manager.sw_status);
 				l_task_flash_tick = timer_getick();
 		}
