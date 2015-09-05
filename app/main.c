@@ -38,6 +38,8 @@
 #define __MACRO_NUM(x)								_##x
 
 #define __SW_INIT(switch_id)					sw_init(&l_switch##switch_id,SWITCH##switch_id)
+ /* this number must be an odd number to make sure that led status is on after blinking*/
+#define LED_RESET_BLINK_TIME    		  13
 void switch_callback(void)
 {
 	printf("a\r\n");
@@ -142,7 +144,8 @@ static uint16_t sw_process_data[5];
 uint8_t l_sw_count_u8 = 0;
 uint32_t bk_data;
 uint32_t l_time_now, l_task_flash_tick;
-
+static uint8_t l_led_blink = 0;
+static uint32_t l_led_time_now;
 
 
 static const sw_database_t data_table [] =
@@ -448,7 +451,7 @@ int main (void)
 
 			  BKP_WriteBackupRegister(BKP_DR1,(uint16_t) l_sw_count_u8);
 			  BKP_WriteBackupRegister(BKP_DR2,(uint16_t) manager.dev_num);
-			  BKP_WriteBackupRegister(BKP_DR3,(uint16_t) ( manager.sw_status>>16 ));
+			  BKP_WriteBackupRegister(BKP_DR3,(uint16_t) (manager.sw_status>>16));
 			  BKP_WriteBackupRegister(BKP_DR4,(uint16_t) manager.sw_status);
 				l_task_flash_tick = timer_getick();
 		}
@@ -457,10 +460,40 @@ int main (void)
 		/*if count >= 30 turn on th buzzer*/
 		if(l_sw_count_u8 >= manager.dev_num)
 		{
-			if(PL_DelayElapsed(l_time_now,10000))// change buzzer time 
+			if(PL_DelayElapsed(l_time_now,7000))// change buzzer time 
 			{
 				hal_dio_toggle(&buzzer);
 				l_time_now = timer_getick();
+			}
+			
+			if(PL_DelayElapsed(l_led_time_now,8000))
+			{
+				if(l_led_blink < LED_RESET_BLINK_TIME)
+				{
+					uint8_t l_led_blink_id;
+					for( l_led_blink_id = 0;l_led_blink_id <  manager.dev_num; l_led_blink_id++ )
+					{
+						if(l_led_blink %2)
+						{
+							hal_dio_set_low(data_table[l_led_blink_id].led);
+						}
+						else
+						{
+							hal_dio_set_high(data_table[l_led_blink_id].led);
+						}
+					}
+					
+					l_led_blink++;
+					if(l_led_blink >= LED_RESET_BLINK_TIME)
+					{
+							l_led_blink = LED_RESET_BLINK_TIME;
+					}
+				}
+				else
+				{
+				}
+					
+				l_led_time_now = timer_getick();
 			}
 		}
 			
@@ -470,7 +503,7 @@ int main (void)
 		{
 			if(l_sw_index_u8 < SWITCH_RESET)
 			{
-				if(manager.mode == MODE_NORMAL)
+				if((manager.mode == MODE_NORMAL)&&(l_sw_count_u8< manager.dev_num ))
 				{
 					if(data_table[l_sw_index_u8].l_switch->pressed == true)
 					{
@@ -492,6 +525,7 @@ int main (void)
 					{
 						data_table[l_sw_index_u8].l_switch->pressed = false;
 						l_sw_count_u8 = 0;
+						l_led_blink = 0;
 						Led7Seg_PrintNum(l_sw_count_u8);
 						uint8_t l_switch_reset;
 						for(l_switch_reset = 0;((l_switch_reset< SWITCH_RESET)&&(l_switch_reset < manager.dev_num));l_switch_reset++)
